@@ -1,15 +1,17 @@
 import './tasksFilter.css'
-export function TasksFilter() {
+export function TasksFilter({ filter }) {
   return (
     <ul className="filters">
       <li>
-        <button className="selected">All</button>
+        <button className="selected" onClick={() => filter('All')}>
+          All
+        </button>
       </li>
       <li>
-        <button>Active</button>
+        <button onClick={() => filter('Active')}>Active</button>
       </li>
       <li>
-        <button>Completed</button>
+        <button onClick={() => filter('Completed')}>Completed</button>
       </li>
     </ul>
   )

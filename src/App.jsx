@@ -4,11 +4,19 @@ import { Footer } from './components/Footer/Footer'
 import React from 'react'
 
 export default class App extends React.Component {
+  maxId = 5
+
   state = {
-    todoData: [
-      { id: 1, description: 'купить хлеб', done: false },
-      { id: 2, description: 'купить молоко', done: false },
-    ],
+    todoData: [],
+    filter: '',
+  }
+
+  createTask(description) {
+    return {
+      id: this.maxId++,
+      description,
+      done: false,
+    }
   }
 
   toggleDone = (id) => {
@@ -41,12 +49,55 @@ export default class App extends React.Component {
     })
   }
 
+  addTask = (description) => {
+    const newTask = this.createTask(description)
+    this.setState(({ todoData }) => {
+      const newTodoData = [...todoData, newTask]
+      return { todoData: newTodoData }
+    })
+  }
+
+  clearCompleted = () => {
+    this.setState(({ todoData }) => {
+      const newTodoData = todoData.filter((task) => {
+        return !task.done
+      })
+      return {
+        todoData: newTodoData,
+      }
+    })
+  }
+
+  filter = (nameFilter) => {
+    this.setState(() => {
+      return {
+        filter: nameFilter,
+      }
+    })
+  }
+
   render() {
+    const count = this.state.todoData.filter((task) => {
+      return !task.done
+    })
+    const { todoData, filter } = this.state
+    let filterTodoData = todoData
+    if (filter === 'Active') {
+      filterTodoData = todoData.filter((task) => {
+        return !task.done
+      })
+    } else if (filter === 'Completed') {
+      filterTodoData = todoData.filter((task) => {
+        return task.done
+      })
+    } else {
+      filterTodoData = this.state.todoData
+    }
     return (
       <>
-        <NewTaskForm />
-        <TaskList todoData={this.state.todoData} toggleDone={this.toggleDone} deleteTask={this.deleteTask} />
-        <Footer />
+        <NewTaskForm createTask={this.addTask} />
+        <TaskList todoData={filterTodoData} toggleDone={this.toggleDone} deleteTask={this.deleteTask} />
+        <Footer countDoneTask={count.length} clearCompleted={this.clearCompleted} filter={this.filter} />
       </>
     )
   }
