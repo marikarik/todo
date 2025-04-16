@@ -1,9 +1,16 @@
+import PropTypes from 'prop-types'
 import './newTaskForm.css'
 import React from 'react'
 
 export class NewTaskForm extends React.Component {
   state = {
     description: '',
+  }
+  static defaultProps = {
+    createTask: () => {},
+  }
+  static propTypes = {
+    createTask: PropTypes.func,
   }
 
   addInputInTask = (event) => {
@@ -27,6 +34,7 @@ export class NewTaskForm extends React.Component {
     )
   }
 }
+
 // export function NewTaskForm() {
 //   return (
 //     <header className="header">

@@ -8,7 +8,7 @@ export default class App extends React.Component {
 
   state = {
     todoData: [],
-    filter: '',
+    filter: 'All',
   }
 
   createTask(description) {
@@ -16,6 +16,7 @@ export default class App extends React.Component {
       id: this.maxId++,
       description,
       done: false,
+      createdDate: new Date(),
     }
   }
 
@@ -68,7 +69,7 @@ export default class App extends React.Component {
     })
   }
 
-  filter = (nameFilter) => {
+  filterChange = (nameFilter) => {
     this.setState(() => {
       return {
         filter: nameFilter,
@@ -97,7 +98,7 @@ export default class App extends React.Component {
       <>
         <NewTaskForm createTask={this.addTask} />
         <TaskList todoData={filterTodoData} toggleDone={this.toggleDone} deleteTask={this.deleteTask} />
-        <Footer countDoneTask={count.length} clearCompleted={this.clearCompleted} filter={this.filter} />
+        <Footer countDoneTask={count.length} clearCompleted={this.clearCompleted} filterChange={this.filterChange} filter={this.state.filter} />
       </>
     )
   }
