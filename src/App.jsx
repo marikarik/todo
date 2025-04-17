@@ -1,14 +1,15 @@
-import { NewTaskForm } from './components/NewTaskForm/NewTaskForm'
-import { TaskList } from './components/TaskList/TaskList'
-import { Footer } from './components/Footer/Footer'
-import React from 'react'
+import React from "react"
+
+import { NewTaskForm } from "./components/NewTaskForm/NewTaskForm"
+import { TaskList } from "./components/TaskList/TaskList"
+import { Footer } from "./components/Footer/Footer"
 
 export default class App extends React.Component {
   maxId = 5
 
   state = {
     todoData: [],
-    filter: 'All',
+    filter: "All",
   }
 
   createTask(description) {
@@ -33,10 +34,10 @@ export default class App extends React.Component {
             return task
           }
         }),
-      }),
-      () => {
-        console.log(this.state.todoData)
-      }
+      })
+      // () => {
+      //   console.log(this.state.todoData)
+      // }
     )
   }
 
@@ -83,11 +84,11 @@ export default class App extends React.Component {
     })
     const { todoData, filter } = this.state
     let filterTodoData = todoData
-    if (filter === 'Active') {
+    if (filter === "Active") {
       filterTodoData = todoData.filter((task) => {
         return !task.done
       })
-    } else if (filter === 'Completed') {
+    } else if (filter === "Completed") {
       filterTodoData = todoData.filter((task) => {
         return task.done
       })
@@ -97,8 +98,17 @@ export default class App extends React.Component {
     return (
       <>
         <NewTaskForm createTask={this.addTask} />
-        <TaskList todoData={filterTodoData} toggleDone={this.toggleDone} deleteTask={this.deleteTask} />
-        <Footer countDoneTask={count.length} clearCompleted={this.clearCompleted} filterChange={this.filterChange} filter={this.state.filter} />
+        <TaskList
+          todoData={filterTodoData}
+          toggleDone={this.toggleDone}
+          deleteTask={this.deleteTask}
+        />
+        <Footer
+          countDoneTask={count.length}
+          clearCompleted={this.clearCompleted}
+          filterChange={this.filterChange}
+          filter={this.state.filter}
+        />
       </>
     )
   }

@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint ./src",
+    "lint:fix": "eslint --fix ./src",
+    "format": "prettier --write ./src",
+    "preview": "vite preview",
+    "prepare": "husky install"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
@@ -16,14 +19,29 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.27.0",
     "@eslint/js": "^9.21.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.21.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-import-resolver-node": "^0.3.9",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.5.3",
     "vite": "^6.2.0"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx}": [
+      "npm run lint",
+      "prettier --write"
+    ]
   }
 }

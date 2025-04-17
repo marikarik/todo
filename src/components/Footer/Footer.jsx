@@ -1,6 +1,7 @@
-import './footer.css'
-import { TasksFilter } from '../TasksFilter/TasksFilter'
-import PropTypes from 'prop-types'
+import "./footer.css"
+import PropTypes from "prop-types"
+
+import { TasksFilter } from "../TasksFilter/TasksFilter"
 export function Footer({ countDoneTask, clearCompleted, filterChange, filter }) {
   return (
     <footer className="footer">

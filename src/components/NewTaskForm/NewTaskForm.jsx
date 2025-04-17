@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types'
-import './newTaskForm.css'
-import React from 'react'
+import PropTypes from "prop-types"
+import "./newTaskForm.css"
+import React from "react"
 
 export class NewTaskForm extends React.Component {
   state = {
-    description: '',
+    description: "",
   }
   static defaultProps = {
     createTask: () => {},
@@ -20,7 +20,7 @@ export class NewTaskForm extends React.Component {
     event.preventDefault()
     this.props.createTask(this.state.description)
     this.setState({
-      description: '',
+      description: "",
     })
   }
   render() {
@@ -28,7 +28,14 @@ export class NewTaskForm extends React.Component {
       <header className="header">
         <h1>todos</h1>
         <form className="newTodo-form" onSubmit={this.onSubmit}>
-          <input type="text" className="new-todo" placeholder="What needs to be done?" autoFocus onChange={this.addInputInTask} value={this.state.description} />
+          <input
+            type="text"
+            className="new-todo"
+            placeholder="What needs to be done?"
+            autoFocus
+            onChange={this.addInputInTask}
+            value={this.state.description}
+          />
         </form>
       </header>
     )

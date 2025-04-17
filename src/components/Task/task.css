@@ -20,7 +20,7 @@
 }
 
 .todo-list li .icon-destroy:after {
-  content: '×';
+  content: "×";
 }
 
 .todo-list li .icon-edit {
@@ -29,5 +29,5 @@
 }
 
 .todo-list li .icon-edit:after {
-  content: '✎';
+  content: "✎";
 }

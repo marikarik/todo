@@ -1,10 +1,10 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { formatDistanceToNow } from 'date-fns'
+import React from "react"
+import PropTypes from "prop-types"
+import { formatDistanceToNow } from "date-fns"
 
 export class Task extends React.Component {
   static defaultProps = {
-    description: 'указать задачу',
+    description: "указать задачу",
     toggleDone: () => {},
     deleteTask: () => {},
   }
@@ -14,9 +14,10 @@ export class Task extends React.Component {
     id: PropTypes.number.isRequired,
     toggleDone: PropTypes.func.isRequired,
     deleteTask: PropTypes.func.isRequired,
+    createdDate: PropTypes.instanceOf(Date),
   }
   handleClick = () => {
-    console.log(this.props)
+    // console.log(this.props)
     this.props.toggleDone(this.props.id)
   }
   handleDelete = () => {
@@ -25,9 +26,9 @@ export class Task extends React.Component {
 
   render() {
     const { done, description, createdDate } = this.props
-    let classNames = ''
+    let classNames = ""
     if (done) {
-      classNames = 'completed'
+      classNames = "completed"
     }
     const timeCreated = formatDistanceToNow(createdDate, { includeSeconds: true, addSuffix: true })
 
