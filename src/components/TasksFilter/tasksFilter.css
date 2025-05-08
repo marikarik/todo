@@ -1,9 +1,3 @@
-@media (max-width: 430px) {
-  .filters {
-    bottom: 10px;
-  }
-}
-
 .filters {
   margin: 0;
   padding: 0;
@@ -37,4 +31,25 @@
 
 .filters li button.selected {
   border-color: rgba(175, 47, 47, 0.2);
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .toggle-all,
+  .todo-list li .toggle {
+    background: none;
+  }
+
+  .todo-list li .toggle {
+    height: 40px;
+  }
+}
+
+@media (max-width: 430px) {
+  .footer {
+    height: 50px;
+  }
+
+  .filters {
+    bottom: 10px;
+  }
 }

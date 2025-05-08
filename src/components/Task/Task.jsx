@@ -1,10 +1,12 @@
-import React from "react"
-import PropTypes from "prop-types"
-import { formatDistanceToNow } from "date-fns"
+import React from 'react'
+import PropTypes from 'prop-types'
+import './task.css'
+import { formatDistanceToNow } from 'date-fns'
 
 export class Task extends React.Component {
   static defaultProps = {
-    description: "указать задачу",
+    description: 'указать задачу',
+    minTimer: '00',
     toggleDone: () => {},
     deleteTask: () => {},
   }
@@ -15,6 +17,9 @@ export class Task extends React.Component {
     toggleDone: PropTypes.func.isRequired,
     deleteTask: PropTypes.func.isRequired,
     createdDate: PropTypes.instanceOf(Date),
+    remainingSeconds: PropTypes.func,
+    pauseTimer: PropTypes.func,
+    startTimer: PropTypes.func,
   }
   handleClick = () => {
     // console.log(this.props)
@@ -25,20 +30,30 @@ export class Task extends React.Component {
   }
 
   render() {
-    const { done, description, createdDate } = this.props
-    let classNames = ""
+    const { done, description, createdDate, remainingSeconds, pauseTimer, startTimer, id } =
+      this.props
+    let classNames = ''
     if (done) {
-      classNames = "completed"
+      classNames = 'completed'
     }
     const timeCreated = formatDistanceToNow(createdDate, { includeSeconds: true, addSuffix: true })
+
+    const min = Math.floor(remainingSeconds / 60)
+    const sec = remainingSeconds % 60
 
     return (
       <li className={classNames}>
         <div className="view">
           <input className="toggle" type="checkbox" checked={done} onChange={this.handleClick} />
           <label>
-            <span className="description">{description}</span>
-            <span className="created">created {timeCreated}</span>
+            <span className="title">{description}</span>
+            <span className="description">
+              <button className="icon icon-play" onClick={() => startTimer(id)} />
+              <button className="icon icon-pause" onClick={() => pauseTimer(id)} />
+              {String(min).length < 2 ? String(min).padStart(2, 0) : String(min)}:
+              {String(sec).padStart(2, 0)}
+            </span>
+            <span className="description">created {timeCreated}</span>
           </label>
           <button className="icon icon-edit"></button>
           <button className="icon icon-destroy" onClick={this.handleDelete}></button>
