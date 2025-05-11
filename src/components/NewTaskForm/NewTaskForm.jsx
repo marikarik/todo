@@ -31,13 +31,9 @@ export class NewTaskForm extends React.Component {
     const sec = event.target.value
     const secNum = parseInt(sec)
     if (secNum > 59) {
-      this.setState({ secTimer: '59' }, () => {
-        console.log(this.state)
-      })
+      this.setState({ secTimer: '59' })
     } else {
-      this.setState({ secTimer: sec }, () => {
-        console.log(this.state)
-      })
+      this.setState({ secTimer: sec })
     }
   }
 
