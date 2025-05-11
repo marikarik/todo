@@ -3,7 +3,18 @@ import PropTypes from 'prop-types'
 import { Task } from '../Task/Task'
 import './taskList.css'
 
-export function TaskList({ todoData, toggleDone, deleteTask, pauseTimer, startTimer }) {
+export function TaskList({
+  todoData,
+  toggleDone,
+  deleteTask,
+  pauseTimer,
+  startTimer,
+  updateTaskDescription,
+  handleEdit,
+  handleInputChange,
+  handleKeyUp,
+  cancelEdit,
+}) {
   return (
     <section className="main">
       <ul className="todo-list">
@@ -23,6 +34,13 @@ export function TaskList({ todoData, toggleDone, deleteTask, pauseTimer, startTi
               totalSeconds={task.totalSeconds}
               pauseTimer={pauseTimer}
               startTimer={startTimer}
+              updateTaskDescription={updateTaskDescription}
+              handleEdit={handleEdit}
+              isEdit={task.isEdit}
+              handleInputChange={handleInputChange}
+              newDescr={task.newDescr}
+              handleKeyUp={handleKeyUp}
+              cancelEdit={cancelEdit}
             />
           )
         })}
@@ -43,4 +61,9 @@ TaskList.propTypes = {
   deleteTask: PropTypes.func,
   pauseTimer: PropTypes.func,
   startTimer: PropTypes.func,
+  updateTaskDescription: PropTypes.func,
+  handleEdit: PropTypes.func,
+  handleInputChange: PropTypes.func,
+  handleKeyUp: PropTypes.func,
+  cancelEdit: PropTypes.func,
 }

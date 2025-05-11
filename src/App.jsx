@@ -10,6 +10,7 @@ export default class App extends React.Component {
   state = {
     todoData: [],
     filter: 'All',
+    editingTaskId: '',
   }
 
   timerIds = {}
@@ -36,7 +37,6 @@ export default class App extends React.Component {
           const task = this.state.todoData.find((item) => item.id === id)
           if (task.remainingSeconds === 0) {
             this.clearTimer(id)
-            console.log(this.state, this.timerIds)
           }
         }
       )
@@ -46,30 +46,26 @@ export default class App extends React.Component {
   pauseTimer = (id) => {
     if (this.timerIds[id]) {
       this.clearTimer(id)
-      this.setState(
-        (prevState) => {
-          return {
-            todoData: prevState.todoData.map((task) => {
-              if (task.id === id && !task.isPaused) {
-                return {
-                  ...task,
-                  isPaused: true,
-                }
-              } else {
-                return task
+      this.setState((prevState) => {
+        return {
+          todoData: prevState.todoData.map((task) => {
+            if (task.id === id && !task.isPaused) {
+              return {
+                ...task,
+                isPaused: true,
               }
-            }),
-          }
+            } else {
+              return task
+            }
+          }),
         }
-        // ,
-        // () => console.log(this.state)
-      )
+      })
     }
   }
 
   startTimer = (id) => {
-    const task = this.state.todoData.find((item) => item.id === id)
-    if (task.isPaused && !this.timerIds[id]) {
+    this.state.todoData.find((item) => item.id === id)
+    if (!this.timerIds[id]) {
       this.tick(id)
     }
   }
@@ -104,13 +100,18 @@ export default class App extends React.Component {
   }
 
   deleteTask = (id) => {
-    this.setState(({ todoData }) => {
-      const i = todoData.findIndex((item) => item.id === id)
-      const newTodoData = [...todoData.slice(0, i), ...todoData.slice(i + 1)]
-      return {
-        todoData: newTodoData,
+    this.setState(
+      ({ todoData }) => {
+        const i = todoData.findIndex((item) => item.id === id)
+        const newTodoData = [...todoData.slice(0, i), ...todoData.slice(i + 1)]
+        return {
+          todoData: newTodoData,
+        }
+      },
+      () => {
+        this.clearTimer(id)
       }
-    })
+    )
   }
 
   createTask(description, minTimer, secTimer) {
@@ -118,14 +119,13 @@ export default class App extends React.Component {
     return {
       id: this.maxId++,
       description,
-      minTimer: minTimer.length ? minTimer : '00',
-      secTimer: secTimer.length ? secTimer : '00',
       totalSeconds,
       remainingSeconds: totalSeconds,
-      isPaused: false,
       timerId: null,
       done: false,
       createdDate: new Date(),
+      newDescr: description,
+      isEdit: false,
     }
   }
 
@@ -157,6 +157,86 @@ export default class App extends React.Component {
     })
   }
 
+  handleEdit = (id) => {
+    this.setState((prevState) => {
+      return {
+        todoData: prevState.todoData.map((task) => {
+          if (task.id === id) {
+            return {
+              ...task,
+              isEdit: true,
+            }
+          } else return task
+        }),
+      }
+    })
+  }
+
+  handleInputChange = (id, event) => {
+    const value = event.target.value
+    this.setState(
+      (prevState) => {
+        return {
+          todoData: prevState.todoData.map((task) => {
+            if (task.id === id) {
+              return {
+                ...task,
+                newDescr: value,
+              }
+            } else return task
+          }),
+        }
+      },
+      () => console.log(value)
+    )
+  }
+
+  updateTaskDescription = (id, newDescr) => {
+    this.setState(
+      (prevState) => {
+        return {
+          todoData: prevState.todoData.map((task) => {
+            if (task.id === id) {
+              return {
+                ...task,
+                description: newDescr,
+              }
+            } else {
+              return task
+            }
+          }),
+        }
+      },
+      () => console.log(this.state.todoData)
+    )
+  }
+
+  handleKeyUp = (id, event) => {
+    const task = this.state.todoData.find((task) => task.id === id)
+    if (task.isEdit && event.key === 'Enter') {
+      this.setState(
+        (prevState) => {
+          return {
+            todoData: prevState.todoData.map((task) =>
+              task.id === id ? { ...task, isEdit: false } : task
+            ),
+          }
+        },
+        () => this.updateTaskDescription(id, task.newDescr)
+      )
+    }
+
+    if (event.key === 'Escape') {
+      this.setState((prevState) => {
+        return {
+          todoData: prevState.todoData.map((task) =>
+            task.isEdit ? { ...task, isEdit: false } : task
+          ),
+        }
+      })
+    }
+  }
+
   render() {
     const count = this.state.todoData.filter((task) => {
       return !task.done
@@ -183,6 +263,11 @@ export default class App extends React.Component {
           deleteTask={this.deleteTask}
           pauseTimer={this.pauseTimer}
           startTimer={this.startTimer}
+          updateTaskDescription={this.updateTaskDescription}
+          handleEdit={this.handleEdit}
+          handleInputChange={this.handleInputChange}
+          handleKeyUp={this.handleKeyUp}
+          cancelEdit={this.cancelEdit}
         />
         <Footer
           countDoneTask={count.length}

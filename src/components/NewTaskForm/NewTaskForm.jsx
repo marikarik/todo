@@ -48,6 +48,7 @@ export class NewTaskForm extends React.Component {
       this.state.minTimer,
       this.state.secTimer
     )
+
     this.setState(
       {
         description: '',
@@ -107,14 +108,3 @@ export class NewTaskForm extends React.Component {
     )
   }
 }
-
-// export function NewTaskForm() {
-//   return (
-//     <header className="header">
-//       <h1>todos</h1>
-//       <form className="newTodo-form">
-//         <input type="text" className="new-todo" placeholder="What needs to be done?" autoFocus />
-//       </form>
-//     </header>
-//   )
-// }
