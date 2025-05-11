@@ -1,4 +1,5 @@
 import React from 'react'
+import { isEqual } from 'date-fns'
 
 import { NewTaskForm } from './components/NewTaskForm/NewTaskForm'
 import { TaskList } from './components/TaskList/TaskList'
@@ -10,7 +11,6 @@ export default class App extends React.Component {
   state = {
     todoData: [],
     filter: 'All',
-    editingTaskId: '',
   }
 
   timerIds = {}
@@ -174,41 +174,35 @@ export default class App extends React.Component {
 
   handleInputChange = (id, event) => {
     const value = event.target.value
-    this.setState(
-      (prevState) => {
-        return {
-          todoData: prevState.todoData.map((task) => {
-            if (task.id === id) {
-              return {
-                ...task,
-                newDescr: value,
-              }
-            } else return task
-          }),
-        }
-      },
-      () => console.log(value)
-    )
+    this.setState((prevState) => {
+      return {
+        todoData: prevState.todoData.map((task) => {
+          if (task.id === id) {
+            return {
+              ...task,
+              newDescr: value,
+            }
+          } else return task
+        }),
+      }
+    })
   }
 
   updateTaskDescription = (id, newDescr) => {
-    this.setState(
-      (prevState) => {
-        return {
-          todoData: prevState.todoData.map((task) => {
-            if (task.id === id) {
-              return {
-                ...task,
-                description: newDescr,
-              }
-            } else {
-              return task
+    this.setState((prevState) => {
+      return {
+        todoData: prevState.todoData.map((task) => {
+          if (task.id === id) {
+            return {
+              ...task,
+              description: newDescr,
             }
-          }),
-        }
-      },
-      () => console.log(this.state.todoData)
-    )
+          } else {
+            return task
+          }
+        }),
+      }
+    })
   }
 
   handleKeyUp = (id, event) => {
@@ -226,15 +220,33 @@ export default class App extends React.Component {
       )
     }
 
-    if (event.key === 'Escape') {
-      this.setState((prevState) => {
-        return {
-          todoData: prevState.todoData.map((task) =>
-            task.isEdit ? { ...task, isEdit: false } : task
-          ),
-        }
-      })
+    if (task.id === id && event.key === 'Escape') {
+      this.cancelEdit()
     }
+  }
+
+  cancelEdit = () => {
+    this.setState((prevState) => {
+      return {
+        todoData: prevState.todoData.map((task) =>
+          task.isEdit ? { ...task, isEdit: false, newDescr: task.description } : task
+        ),
+      }
+    })
+  }
+
+  handleClickOutside = (event) => {
+    if (event.target.classList.contains('edit')) return
+
+    this.cancelEdit()
+  }
+
+  componentDidMount() {
+    document.addEventListener('click', this.handleClickOutside)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside)
   }
 
   render() {

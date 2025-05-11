@@ -4,6 +4,7 @@ import './task.css'
 import { formatDistanceToNow } from 'date-fns'
 
 export class Task extends React.Component {
+  inputRef = React.createRef()
   static defaultProps = {
     description: 'указать задачу',
     toggleDone: () => {},
@@ -46,7 +47,6 @@ export class Task extends React.Component {
       handleInputChange,
       newDescr,
       handleKeyUp,
-      cancelEdit,
     } = this.props
     let classNames = ''
     if (done) {
@@ -88,7 +88,13 @@ export class Task extends React.Component {
                 </span>
                 <span className="description">created {timeCreated}</span>
               </label>
-              <button className="icon icon-edit" onClick={() => this.props.handleEdit(id)}></button>
+              <button
+                className="icon icon-edit"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  this.props.handleEdit(id)
+                }}
+              ></button>
               <button className="icon icon-destroy" onClick={this.handleDelete}></button>
             </>
           )}
