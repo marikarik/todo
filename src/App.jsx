@@ -1,123 +1,70 @@
-import React from 'react'
-import { isEqual } from 'date-fns'
+import { useState, useRef, useEffect } from 'react'
 
 import { NewTaskForm } from './components/NewTaskForm/NewTaskForm'
 import { TaskList } from './components/TaskList/TaskList'
 import { Footer } from './components/Footer/Footer'
 
-export default class App extends React.Component {
-  maxId = 5
+export default function App() {
+  const [todoData, setTodoData] = useState([])
+  const [filter, setFilter] = useState('All')
 
-  state = {
-    todoData: [],
-    filter: 'All',
-  }
+  let maxIdRef = useRef(5)
+  let timerIdsRef = useRef({})
 
-  timerIds = {}
-
-  tick = (id) => {
-    this.timerIds[id] = setInterval(() => {
-      this.setState(
-        (prevState) => {
-          return {
-            todoData: prevState.todoData.map((task) => {
-              if (task.id === id && task.remainingSeconds > 0) {
-                return {
-                  ...task,
-                  remainingSeconds: task.remainingSeconds - 1,
-                  isPaused: false,
-                }
-              } else {
-                return task
-              }
-            }),
-          }
-        },
-        () => {
-          const task = this.state.todoData.find((item) => item.id === id)
-          if (task.remainingSeconds === 0) {
-            this.clearTimer(id)
-          }
-        }
-      )
-    }, 1000)
-  }
-
-  pauseTimer = (id) => {
-    if (this.timerIds[id]) {
-      this.clearTimer(id)
-      this.setState((prevState) => {
-        return {
-          todoData: prevState.todoData.map((task) => {
-            if (task.id === id && !task.isPaused) {
-              return {
-                ...task,
-                isPaused: true,
-              }
-            } else {
-              return task
-            }
-          }),
-        }
-      })
-    }
-  }
-
-  startTimer = (id) => {
-    this.state.todoData.find((item) => item.id === id)
-    if (!this.timerIds[id]) {
-      this.tick(id)
-    }
-  }
-
-  clearTimer = (id) => {
-    clearInterval(this.timerIds[id])
-    delete this.timerIds[id]
-  }
-
-  toggleDone = (id) => {
-    this.setState(
-      (prevState) => ({
-        todoData: prevState.todoData.map((task) => {
-          if (id === task.id) {
+  const tick = (id) => {
+    timerIdsRef.current[id] = setInterval(() => {
+      setTodoData((todoDataPrev) => {
+        const newTodoData = todoDataPrev.map((task) => {
+          if (task.id === id && task.remainingSeconds > 0) {
             return {
               ...task,
-              done: !task.done,
-              remainingSeconds: 0,
+              remainingSeconds: task.remainingSeconds - 1,
+              isPaused: false,
             }
           } else {
             return task
           }
-        }),
-      }),
-      () => {
-        const task = this.state.todoData.find((item) => item.id === id)
-        if (task.done && this.timerIds[id]) {
-          this.clearTimer(id)
+        })
+        const task = newTodoData.find((item) => item.id === id)
+        if (task.remainingSeconds === 0) {
+          clearTimer(id)
         }
-      }
-    )
+        return newTodoData
+      })
+    }, 1000)
+  }
+  const clearTimer = (id) => {
+    clearInterval(timerIdsRef.current[id])
+    delete timerIdsRef.current[id]
   }
 
-  deleteTask = (id) => {
-    this.setState(
-      ({ todoData }) => {
-        const i = todoData.findIndex((item) => item.id === id)
-        const newTodoData = [...todoData.slice(0, i), ...todoData.slice(i + 1)]
-        return {
-          todoData: newTodoData,
-        }
-      },
-      () => {
-        this.clearTimer(id)
-      }
-    )
+  const pauseTimer = (id) => {
+    if (timerIdsRef.current[id]) {
+      clearTimer(id)
+      setTodoData((todoDataPev) => {
+        return todoDataPev.map((task) => {
+          if (task.id === id && !task.isPaused) {
+            return {
+              ...task,
+              isPaused: true,
+            }
+          } else {
+            return task
+          }
+        })
+      })
+    }
   }
 
-  createTask(description, minTimer, secTimer) {
+  const startTimer = (id) => {
+    if (!timerIdsRef.current[id]) {
+      tick(id)
+    }
+  }
+  const createTask = (description, minTimer, secTimer) => {
     const totalSeconds = Number(minTimer) * 60 + Number(secTimer)
     return {
-      id: this.maxId++,
+      id: maxIdRef.current++,
       description,
       totalSeconds,
       remainingSeconds: totalSeconds,
@@ -129,165 +76,162 @@ export default class App extends React.Component {
     }
   }
 
-  addTask = (description, min, sec) => {
-    const newTask = this.createTask(description, min, sec)
-    this.setState(({ todoData }) => {
-      const newTodoData = [...todoData, newTask]
-      return { todoData: newTodoData }
+  const addTask = (description, min, sec) => {
+    const newTask = createTask(description, min, sec)
+    setTodoData((todoDataPrev) => {
+      return [...todoDataPrev, newTask]
     })
     return newTask
   }
 
-  clearCompleted = () => {
-    this.setState(({ todoData }) => {
-      const newTodoData = todoData.filter((task) => {
+  const deleteTask = (id) => {
+    const i = todoData.findIndex((item) => item.id === id)
+    setTodoData((todoDataPrev) => {
+      return [...todoDataPrev.slice(0, i), ...todoDataPrev.slice(i + 1)]
+    })
+    clearTimer(id)
+  }
+
+  const handleEdit = (id) => {
+    setTodoData((todoDataPrev) => {
+      return todoDataPrev.map((task) => {
+        if (task.id === id) {
+          return {
+            ...task,
+            isEdit: true,
+          }
+        } else return task
+      })
+    })
+  }
+
+  const handleInputChange = (id, event) => {
+    const value = event.target.value
+    setTodoData((todoDataPrev) => {
+      return todoDataPrev.map((task) => {
+        if (task.id === id) {
+          return {
+            ...task,
+            newDescr: value,
+          }
+        } else return task
+      })
+    })
+  }
+
+  const updateTaskDescription = (id, newDescr) => {
+    setTodoData((todoDataPrev) => {
+      return todoDataPrev.map((task) => {
+        if (task.id === id) {
+          return {
+            ...task,
+            description: newDescr,
+          }
+        } else {
+          return task
+        }
+      })
+    })
+  }
+
+  const cancelEdit = () => {
+    setTodoData((todoDataPrev) => {
+      return todoDataPrev.map((task) =>
+        task.isEdit ? { ...task, isEdit: false, newDescr: task.description } : task
+      )
+    })
+  }
+
+  const handleKeyUp = (id, event) => {
+    const task = todoData.find((task) => task.id === id)
+    if (task.isEdit && event.key === 'Enter') {
+      setTodoData((todoDataPrev) => {
+        return todoDataPrev.map((task) => (task.id === id ? { ...task, isEdit: false } : task))
+      })
+      updateTaskDescription(id, task.newDescr)
+    }
+    if (task.id === id && event.key === 'Escape') {
+      cancelEdit()
+    }
+  }
+
+  const toggleDone = (id) => {
+    setTodoData((todoDataPrev) => {
+      return todoDataPrev.map((task) => {
+        if (id === task.id) {
+          return {
+            ...task,
+            done: !task.done,
+            remainingSeconds: 0,
+          }
+        } else {
+          return task
+        }
+      })
+    })
+  }
+
+  const filterChange = (nameFilter) => {
+    setFilter(nameFilter)
+  }
+
+  const clearCompleted = () => {
+    setTodoData((todoDataPrev) => {
+      return todoDataPrev.filter((task) => {
         return !task.done
       })
-      return {
-        todoData: newTodoData,
-      }
     })
   }
 
-  filterChange = (nameFilter) => {
-    this.setState(() => {
-      return {
-        filter: nameFilter,
-      }
-    })
-  }
-
-  handleEdit = (id) => {
-    this.setState((prevState) => {
-      return {
-        todoData: prevState.todoData.map((task) => {
-          if (task.id === id) {
-            return {
-              ...task,
-              isEdit: true,
-            }
-          } else return task
-        }),
-      }
-    })
-  }
-
-  handleInputChange = (id, event) => {
-    const value = event.target.value
-    this.setState((prevState) => {
-      return {
-        todoData: prevState.todoData.map((task) => {
-          if (task.id === id) {
-            return {
-              ...task,
-              newDescr: value,
-            }
-          } else return task
-        }),
-      }
-    })
-  }
-
-  updateTaskDescription = (id, newDescr) => {
-    this.setState((prevState) => {
-      return {
-        todoData: prevState.todoData.map((task) => {
-          if (task.id === id) {
-            return {
-              ...task,
-              description: newDescr,
-            }
-          } else {
-            return task
-          }
-        }),
-      }
-    })
-  }
-
-  handleKeyUp = (id, event) => {
-    const task = this.state.todoData.find((task) => task.id === id)
-    if (task.isEdit && event.key === 'Enter') {
-      this.setState(
-        (prevState) => {
-          return {
-            todoData: prevState.todoData.map((task) =>
-              task.id === id ? { ...task, isEdit: false } : task
-            ),
-          }
-        },
-        () => this.updateTaskDescription(id, task.newDescr)
-      )
-    }
-
-    if (task.id === id && event.key === 'Escape') {
-      this.cancelEdit()
-    }
-  }
-
-  cancelEdit = () => {
-    this.setState((prevState) => {
-      return {
-        todoData: prevState.todoData.map((task) =>
-          task.isEdit ? { ...task, isEdit: false, newDescr: task.description } : task
-        ),
-      }
-    })
-  }
-
-  handleClickOutside = (event) => {
+  const handleClickOutside = (event) => {
     if (event.target.classList.contains('edit')) return
 
-    this.cancelEdit()
+    cancelEdit()
   }
 
-  componentDidMount() {
-    document.addEventListener('click', this.handleClickOutside)
-  }
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [])
 
-  componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutside)
-  }
+  const count = todoData.filter((task) => {
+    return !task.done
+  })
 
-  render() {
-    const count = this.state.todoData.filter((task) => {
+  let filterTodoData = todoData
+  if (filter === 'Active') {
+    filterTodoData = todoData.filter((task) => {
       return !task.done
     })
-    const { todoData, filter } = this.state
-    let filterTodoData = todoData
-    if (filter === 'Active') {
-      filterTodoData = todoData.filter((task) => {
-        return !task.done
-      })
-    } else if (filter === 'Completed') {
-      filterTodoData = todoData.filter((task) => {
-        return task.done
-      })
-    } else {
-      filterTodoData = this.state.todoData
-    }
-    return (
-      <>
-        <NewTaskForm addTask={this.addTask} tick={this.tick} />
-        <TaskList
-          todoData={filterTodoData}
-          toggleDone={this.toggleDone}
-          deleteTask={this.deleteTask}
-          pauseTimer={this.pauseTimer}
-          startTimer={this.startTimer}
-          updateTaskDescription={this.updateTaskDescription}
-          handleEdit={this.handleEdit}
-          handleInputChange={this.handleInputChange}
-          handleKeyUp={this.handleKeyUp}
-          cancelEdit={this.cancelEdit}
-        />
-        <Footer
-          countDoneTask={count.length}
-          clearCompleted={this.clearCompleted}
-          filterChange={this.filterChange}
-          filter={this.state.filter}
-        />
-      </>
-    )
+  } else if (filter === 'Completed') {
+    filterTodoData = todoData.filter((task) => {
+      return task.done
+    })
+  } else {
+    filterTodoData = todoData
   }
+
+  return (
+    <>
+      <NewTaskForm addTask={addTask} tick={tick} />
+      <TaskList
+        todoData={filterTodoData}
+        toggleDone={toggleDone}
+        deleteTask={deleteTask}
+        pauseTimer={pauseTimer}
+        startTimer={startTimer}
+        updateTaskDescription={updateTaskDescription}
+        handleEdit={handleEdit}
+        handleInputChange={handleInputChange}
+        handleKeyUp={handleKeyUp}
+        cancelEdit={cancelEdit}
+      />
+      <Footer
+        countDoneTask={count.length}
+        clearCompleted={clearCompleted}
+        filterChange={filterChange}
+        filter={filter}
+      />
+    </>
+  )
 }
